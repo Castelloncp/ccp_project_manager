@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>{{ project.project_name }}</h3>
+<p><strong>Status:</strong> {{ project.status }}</p>
+<p><strong>POC:</strong> {{ project.poc }}</p>
+<p><strong>Quote#:</strong> {{ project.quote_number }}</p>
+<p><strong>PO#:</strong> {{ project.po_number }}</p>
+{% if is_admin %}<p><strong>Price:</strong> {{ project.price }}</p>{% endif %}
+
+<h4>Notes</h4>
+<pre style="white-space:pre-wrap;">{{ project.notes }}</pre>
+
+<h5 class="mt-3">Add Note</h5>
+<form method="post">
+  <div class="mb-2">
+    <textarea class="form-control" name="note" rows="3" required></textarea>
+  </div>
+  <button class="btn btn-primary" type="submit">Add Note</button>
+</form>
+
+<h5 class="mt-4">Upload File / Picture</h5>
+<form method="post" action="{{ url_for('files.upload_file', project_id=project.id) }}" enctype="multipart/form-data">
+  <div class="mb-2">
+    <input type="file" name="file" required>
+  </div>
+  <button class="btn btn-secondary" type="submit">Upload</button>
+</form>
+
+<h5 class="mt-4">Files</h5>
+<ul>
+{% for f in files %}
+  <li><a href="{{ url_for('files.download_file', project_id=project.id, filename=f.filename) }}">{{ f.filename }}</a> (uploaded by {{ f.uploaded_by }})</li>
+{% else %}
+  <li class="text-muted">No files yet.</li>
+{% endfor %}
+</ul>
+
+<a class="btn btn-link mt-3" href="{{ url_for('projects.dashboard') }}">Back to dashboard</a>
+{% endblock %}

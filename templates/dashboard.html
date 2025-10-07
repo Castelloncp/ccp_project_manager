@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Projects</h2>
+{% if current_user.role in ['admin','pm'] %}
+<a class="btn btn-success mb-2" href="{{ url_for('projects.add_project') }}">Add Project</a>
+{% endif %}
+<table class="table table-striped">
+<thead><tr><th>ID</th><th>Name</th><th>Status</th><th>POC</th><th>Quote#</th><th>PO#</th>{% if current_user.role=='admin' %}<th>Price</th>{% endif %}<th>Notes</th><th>Actions</th></tr></thead>
+<tbody>
+{% for p in projects %}
+<tr>
+<td>{{ p.id }}</td>
+<td>{{ p.project_name }}</td>
+<td>{{ p.status }}</td>
+<td>{{ p.poc }}</td>
+<td>{{ p.quote_number }}</td>
+<td>{{ p.po_number }}</td>
+{% if current_user.role=='admin' %}<td>{{ p.price }}</td>{% endif %}
+<td>{{ p.notes[:60] }}</td>
+<td><a class="btn btn-sm btn-primary" href="{{ url_for('projects.project_detail', project_id=p.id) }}">View</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Import Projects (CSV)</h3>
+<form method="post" enctype="multipart/form-data">
+  <div class="mb-3"><input type="file" name="csv_file" accept=".csv" required></div>
+  <button class="btn btn-primary" type="submit">Upload & Import</button>
+</form>
+<p class="mt-3 text-muted">CSV columns expected: project_name, status, notes, poc, quote_number, po_number, price (price only processed for admins)</p>
+{% endblock %}

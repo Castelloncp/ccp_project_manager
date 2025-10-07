@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>New Project</h3>
+<form method="post">
+  <div class="mb-3"><label>Project Name</label><input class="form-control" name="project_name" required></div>
+  <div class="mb-3"><label>Status</label><input class="form-control" name="status"></div>
+  <div class="mb-3"><label>POC</label><input class="form-control" name="poc"></div>
+  <div class="mb-3"><label>Quote #</label><input class="form-control" name="quote_number"></div>
+  <div class="mb-3"><label>PO #</label><input class="form-control" name="po_number"></div>
+  {% if is_admin() %}<div class="mb-3"><label>Price</label><input class="form-control" name="price" type="number" step="0.01"></div>{% endif %}
+  <button class="btn btn-success" type="submit">Create</button>
+</form>
+{% endblock %}

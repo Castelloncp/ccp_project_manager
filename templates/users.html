@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Users</h3>
+<table class="table">
+<thead><tr><th>Username</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead>
+<tbody>
+{% for u in users %}
+<tr><td>{{ u.username }}</td><td>{{ u.role }}</td><td>{{ u.created_at }}</td>
+<td>
+  <form method="post" action="{{ url_for('users.reset_password', user_id=u.id) }}" style="display:inline;">
+    <input name="password" placeholder="new password" required>
+    <button class="btn btn-sm btn-warning" type="submit">Reset</button>
+  </form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h5 class="mt-4">Add User</h5>
+<form method="post" action="{{ url_for('users.add_user') }}">
+  <div class="mb-2"><input class="form-control" name="username" placeholder="username" required></div>
+  <div class="mb-2"><input class="form-control" name="password" placeholder="password" required></div>
+  <div class="mb-2">
+    <select class="form-control" name="role">
+      <option value="general">general</option>
+      <option value="pm">pm</option>
+      <option value="admin">admin</option>
+    </select>
+  </div>
+  <button class="btn btn-success" type="submit">Add User</button>
+</form>
+{% endblock %}
