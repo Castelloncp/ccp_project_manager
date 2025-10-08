@@ -1,0 +1,64 @@
+import boto3
+from flask import Blueprint, request, redirect, url_for, flash, render_template
+from werkzeug.utils import secure_filename
+from flask_login import login_required, current_user
+from app import db
+from models import Project, ProjectFile
+import os
+
+files_bp = Blueprint('files', __name__)
+
+# AWS S3 configuration from environment variables
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET = os.environ.get("AWS_S3_BUCKET")
+AWS_S3_REGION = os.environ.get("AWS_S3_REGION")
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_S3_REGION
+)
+
+def upload_file_to_s3(file):
+    """Upload a file to S3 and return the public URL"""
+    filename = secure_filename(file.filename)
+    s3_client.upload_fileobj(
+        file,
+        AWS_S3_BUCKET,
+        filename,
+        ExtraArgs={"ACL": "public-read"}  # Makes the file publicly accessible
+    )
+    file_url = f"https://{AWS_S3_BUCKET}.s3.{AWS_S3_REGION}.amazonaws.com/{filename}"
+    return file_url
+
+@files_bp.route('/projects/<int:project_id>/upload', methods=['GET', 'POST'])
+@login_required
+def upload_file(project_id):
+    project = Project.query.get_or_404(project_id)
+
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
+        if file:
+            file_url = upload_file_to_s3(file)
+
+            # Save file metadata in DB
+            new_file = ProjectFile(
+                project_id=project.id,
+                filename=file.filename,
+                url=file_url,
+                uploaded_by=current_user.id
+            )
+            db.session.add(new_file)
+            db.session.commit()
+            flash('File uploaded successfully!', 'success')
+            return redirect(url_for('projects.project_detail', project_id=project.id))
+
+    return render_template('upload_file.html', project=project)
